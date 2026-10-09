@@ -1,0 +1,326 @@
+/* ==========================================================================
+   fomal-style.css
+   视觉改版层 —— 参考 https://www.fomal.cc/ 的整体风格
+   只做样式，不改主题模板；所有内容都能在这里改，不需要动 themes/butterfly。
+
+   分六节：
+     A. 可调变量        —— 想换配色/字体只改这一节
+     B. 字体与字号
+     C. 首屏（大标题 / 打字机副标题 / 社交图标）
+     D. 卡片（圆角 / 阴影 / 悬停）
+     E. 页脚（双栏 #ft）
+     F. 可选：霞鹜文楷 webfont（默认关闭，见文末说明）
+   ========================================================================== */
+
+
+/* ==========================================================================
+   A. 可调变量
+   --------------------------------------------------------------------------
+   注意：这些变量主题原本就定义在 index.css 里，这里只是覆盖。
+   当前取值与 fomal.cc 一致（蓝色主色 + 橙色悬停），想换配色改前三行即可。
+   ========================================================================== */
+
+:root {
+  /* —— 主色 —— */
+  --btn-bg: #49b1f5;                        /* 按钮 / 滚动条 / 链接悬停主色 */
+  --btn-hover-color: #ff7242;               /* 悬停强调色 */
+  --text-bg-hover: rgba(73, 177, 245, .7);  /* 文字选中背景 */
+  --scrollbar-color: #49b1f5;
+
+  /* —— 页脚 —— */
+  --ft-text: rgb(255 255 255 / 82%);        /* 页脚正文颜色，底色是蓝色 */
+  --ft-max-width: 1200px;                   /* 页脚内容最大宽度，和正文对齐 */
+
+  /* —— 首屏 —— */
+  --hero-title-size: 3em;                   /* 站名字号 */
+  --hero-subtitle-size: 1.35em;             /* 副标题字号 */
+  --hero-gap: 18px;                         /* 标题与副标题的间距 */
+}
+
+
+/* ==========================================================================
+   B. 字体与字号
+   --------------------------------------------------------------------------
+   主题默认字号 14px，偏小；这里提到 15.5px（与 fomal.cc 一致）。
+   字体用系统栈，覆盖中英文和常见标点，不额外请求字体文件。
+   ========================================================================== */
+
+:root {
+  --global-font-size: 15.5px;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue',
+    Lato, Roboto, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei',
+    'Source Han Sans SC', 'Noto Sans CJK SC', sans-serif;
+}
+
+/* 标题用稍重的字重，视觉层次更清楚 */
+#site-title,
+#article-container h1,
+#article-container h2,
+#article-container h3 {
+  letter-spacing: .02em;
+}
+
+
+/* ==========================================================================
+   C. 首屏
+   --------------------------------------------------------------------------
+   主体样式主题自带（和 fomal.cc 同源），这里只把标题放大、
+   控制副标题间距，并把社交图标调得和参考站一样。
+   ========================================================================== */
+
+/* 站名放大加粗 */
+#page-header #site-title,
+h1#site-title {
+  font-size: var(--hero-title-size);
+  font-weight: 700;
+  margin: 0;
+}
+
+/* 打字机副标题：留出上下间距，别贴着大标题 */
+#page-header #site-subtitle {
+  font-size: var(--hero-subtitle-size);
+  margin-top: var(--hero-gap);
+  min-height: 1.5em;              /* 打字机逐字出现时不抖动 */
+  letter-spacing: .05em;
+}
+
+/* 首屏社交图标 */
+#page-header #site_social_icons {
+  margin-top: var(--hero-gap);
+  width: auto;
+}
+
+/* ⚠ Butterfly 5.6.1 把这块写反了：宽屏是 display:none、窄屏才是 block，
+   结果桌面端根本看不到图标。下面这条把桌面端补回来。 */
+@media screen and (min-width: 768px) {
+  #page-header #site_social_icons {
+    display: block;
+  }
+}
+
+#page-header #site_social_icons .social-icon {
+  margin: 0 10px;
+  font-size: 1.43em;
+  transition: transform .3s ease-in-out, color .3s ease-in-out;
+}
+
+#page-header #site_social_icons .social-icon:hover {
+  color: var(--white);
+  transform: translateY(-3px);
+}
+
+/* 小屏幕上把首屏整体上移一点，避免副标题和图标挤到屏幕外 */
+@media screen and (max-width: 768px) {
+  :root {
+    --hero-title-size: 2em;
+    --hero-subtitle-size: 1em;
+    --hero-gap: 12px;
+  }
+
+  #page-header.full_page #site-info {
+    top: 38%;
+  }
+}
+
+
+/* ==========================================================================
+   D. 卡片
+   --------------------------------------------------------------------------
+   主题自带的圆角/阴影已经和参考站一致（rounded_corners_ui: true）。
+   这里只把阴影改成更轻的「浮起来」观感，并统一悬停反馈。
+   ========================================================================== */
+
+:root {
+  --card-box-shadow: 0 3px 12px rgba(7, 17, 27, .06);
+  --card-hover-box-shadow: 0 6px 20px rgba(7, 17, 27, .12);
+}
+
+#aside-content .card-widget,
+.layout > .recent-posts .pagination > :not(.space),
+.layout > div:first-child:not(.recent-posts) {
+  border-radius: 10px;
+}
+
+/* 首页文章卡片的封面悬停缩放，和侧边栏一致 */
+#recent-posts .recent-post-item {
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+
+/* ==========================================================================
+   E. 页脚
+   --------------------------------------------------------------------------
+   结构写在 _config.butterfly.yml 的 footer.custom_text 里，
+   这里只负责排版。用 order 把 #ft 提到版权行前面，
+   这样不用改主题模板就能得到「先导航、后版权」的顺序。
+   ========================================================================== */
+
+.footer-other {
+  display: flex;
+  flex-direction: column;
+  padding: 30px 20px 20px;
+}
+
+.footer_custom_text {
+  order: -1;
+}
+
+#ft {
+  display: flex;
+  flex-wrap: wrap;
+  width: 100%;
+  max-width: var(--ft-max-width);
+  margin: 0 auto 18px;
+  color: var(--ft-text);
+  text-align: left;
+}
+
+.ft-item-1,
+.ft-item-2 {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 2px 14px;
+  box-sizing: border-box;
+}
+
+.ft-item-1 {
+  flex: 2;
+}
+
+.ft-item-2 {
+  flex: 1;
+}
+
+/* 左栏内部再分左右两块 */
+.t-top {
+  display: flex;
+}
+
+.t-top .t-t-l {
+  display: flex;
+  flex-direction: column;
+  flex: 1.4;
+  margin-right: 10px;
+}
+
+.t-top .t-t-r {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+/* 小标题 */
+.ft-t {
+  margin-bottom: 14px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  line-height: 1;
+}
+
+/* 寄语段落 */
+.bg-ad {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: rgb(255 255 255 / 10%);
+  font-size: .95em;
+  line-height: 1.8;
+  text-align: justify;
+}
+
+.btn-xz-box {
+  margin-top: 10px;
+}
+
+.btn-xz {
+  display: block;
+  margin: 8px 0;
+  border-radius: 6px;
+  background-color: rgb(255 255 255 / 22%);
+  color: #fff;
+  text-align: center;
+  line-height: 2.2;
+  transition: all .2s ease-in-out;
+}
+
+.btn-xz:hover {
+  background-color: var(--btn-hover-color);
+  color: #fff;
+  text-decoration: none;
+}
+
+/* 链接列表：一行两个 */
+.ft-links {
+  margin: 0;
+  padding: 0 14px;
+  list-style: none;
+}
+
+.ft-links li a {
+  display: inline-block;
+  width: 50%;
+  color: var(--ft-text);
+  transition: all .3s ease-in-out;
+}
+
+.ft-links li a:hover {
+  color: #fff;
+  text-decoration: none;
+  transform: translateX(3px);
+}
+
+/* 只有一列的链接列表（右栏「本站」那种） */
+.ft-links-single {
+  padding-left: 14px;
+}
+
+.ft-links-single li a {
+  width: 100%;
+}
+
+/* 窄屏：左右栏各占一整行 */
+@media screen and (max-width: 768px) {
+  .ft-item-1,
+  .ft-item-2 {
+    flex-basis: 100%;
+    padding: 0;
+  }
+
+  .ft-item-2 {
+    margin-top: 20px;
+  }
+
+  .t-top {
+    flex-wrap: wrap;
+  }
+
+  .t-top .t-t-l,
+  .t-top .t-t-r {
+    flex-basis: 100%;
+    margin-right: 0;
+  }
+
+  .t-top .t-t-r {
+    margin-top: 16px;
+  }
+}
+
+
+/* ==========================================================================
+   F. 可选：霞鹜文楷 webfont（默认关闭）
+   --------------------------------------------------------------------------
+   fomal.cc 的标题用的是霞鹜文楷。它是个中文 webfont，即使做了子集切分，
+   首屏仍会多出几个字体的请求 —— 国内访问 jsDelivr 偶尔不稳，所以默认不开。
+
+   想开的话：
+     1. 把下面两行的注释去掉
+     2. 就这两行，其它不用动
+
+   @import url('https://cdn.jsdelivr.net/npm/lxgw-wenkai-screen-webfont@1.7.0/style.css');
+   #site-title, #site-subtitle, #article-container h1, #article-container h2 { font-family: 'LXGW WenKai Screen', inherit; }
+   ========================================================================== */

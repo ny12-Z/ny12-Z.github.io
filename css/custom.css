@@ -1,0 +1,481 @@
+/* =========================
+   Music Box
+   ========================= */
+
+body:has(.music-box) {
+  background-image:
+    linear-gradient(
+      rgba(10, 20, 40, 0.35),
+      rgba(10, 20, 40, 0.45)
+    ),
+    url("/img/music-bg.jpg");
+
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+}
+
+body:has(.music-box) #page {
+  background: transparent !important;
+}
+
+body:has(.music-box) #content-inner {
+  background: transparent !important;
+}
+
+.music-box {
+  max-width: 900px;
+  margin: 60px auto;
+  padding: 30px;
+  box-sizing: border-box;
+}
+
+.music-clock {
+  text-align: center;
+  margin-bottom: 35px;
+}
+
+#music-time {
+  font-size: 40px;
+  font-weight: 500;
+  letter-spacing: 3px;
+  color: #ffffff;
+  text-shadow: 0 2px 15px rgba(0, 0, 0, 0.45);
+}
+
+#music-date {
+  margin-top: 8px;
+  font-size: 14px;
+  letter-spacing: 2px;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+
+/* =========================
+   Glass Player
+   ========================= */
+
+.music-player {
+  width: 100%;
+  padding: 35px;
+  box-sizing: border-box;
+
+  border-radius: 28px;
+
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+
+  backdrop-filter: blur(25px);
+  -webkit-backdrop-filter: blur(25px);
+
+  box-shadow:
+    0 20px 60px rgba(0, 0, 0, 0.35),
+    inset 0 1px 1px rgba(255, 255, 255, 0.25);
+
+  color: #ffffff;
+}
+
+
+/* =========================
+   Cover
+   ========================= */
+
+.music-cover {
+  width: 220px;
+  height: 220px;
+  margin: 0 auto 25px;
+
+  border-radius: 22px;
+  overflow: hidden;
+
+  background: rgba(255,255,255,0.15);
+  border: 1px solid rgba(255,255,255,0.3);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  box-shadow:
+    0 12px 35px rgba(0, 0, 0, 0.25);
+}
+
+.music-cover-placeholder {
+  font-size: 70px;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+
+/* =========================
+   Song Information
+   ========================= */
+
+.music-info {
+  margin-bottom: 25px;
+  text-align: center;
+}
+
+.music-title {
+  font-size: 24px;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.music-artist {
+  margin-top: 6px;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+
+/* =========================
+   Progress
+   ========================= */
+
+.music-progress {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 20px 0;
+}
+
+.music-progress span {
+  min-width: 40px;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+#music-progress {
+  flex: 1;
+  cursor: pointer;
+}
+
+
+/* =========================
+   Controls
+   ========================= */
+
+.music-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 18px;
+  margin: 25px 0;
+}
+
+.music-controls button {
+  width: 45px;
+  height: 45px;
+
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+
+  cursor: pointer;
+  font-size: 16px;
+
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease;
+}
+
+.music-controls button:hover {
+  background: rgba(255, 255, 255, 0.25);
+  transform: scale(1.06);
+}
+
+#music-play {
+  width: 58px;
+  height: 58px;
+  font-size: 20px;
+
+  background: rgba(255, 255, 255, 0.2);
+}
+
+
+/* =========================
+   Volume
+   ========================= */
+
+.music-volume {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.music-volume span {
+  font-size: 16px;
+}
+
+#music-volume {
+  width: 120px;
+  cursor: pointer;
+}
+
+
+/* =========================
+   Mobile
+   ========================= */
+
+@media screen and (max-width: 600px) {
+  .music-box {
+    padding: 25px 10px;
+  }
+
+  .music-player {
+    padding: 22px;
+  }
+
+  .music-cover {
+    width: 180px;
+    height: 180px;
+  }
+
+  #music-time {
+    font-size: 32px;
+    letter-spacing: 2px;
+  }
+}
+/* ==========================
+   Music Box Overall Style
+   ========================== */
+
+
+body:has(.music-box) {
+
+    color:white;
+
+}
+
+
+
+/* ==========================
+   Music Box Player
+   ========================== */
+
+
+
+
+
+
+/* ==========================
+   Aside Glass
+   ========================== */
+
+
+body:has(.music-box) #aside-content .card-widget {
+
+
+    background:
+
+    rgba(255,255,255,0.12)
+    !important;
+
+
+
+    border:
+
+    1px solid rgba(255,255,255,.25)
+    !important;
+
+
+
+    backdrop-filter:
+
+    blur(20px);
+
+
+
+    -webkit-backdrop-filter:
+
+    blur(20px);
+
+
+
+    box-shadow:
+
+    0 10px 30px rgba(0,0,0,.25);
+
+
+
+    color:white;
+
+
+
+}
+
+
+
+/* ==========================
+   Aside Text
+   ========================== */
+
+
+body:has(.music-box) #aside-content {
+
+    color:white;
+
+}
+
+
+
+body:has(.music-box) #aside-content a {
+
+    color:white;
+
+}
+
+
+
+/* ==========================
+   Header Title
+   ========================== */
+
+
+body:has(.music-box) #page-header .site-title {
+
+
+    text-shadow:
+
+    0 0 15px rgba(255,255,255,.8);
+
+
+
+}
+
+
+
+/* ==========================
+   Music Cover
+   ========================== */
+
+
+
+
+
+/* ==========================
+   Buttons
+   ========================== */
+
+
+.music-controls button {
+
+
+    background:
+
+    rgba(255,255,255,.18);
+
+
+
+    border:
+
+    1px solid rgba(255,255,255,.25);
+
+
+
+}
+
+
+
+.music-controls button:hover {
+  background: rgba(255, 255, 255, 0.35);
+}
+
+/* ==========================
+   Music Box Header Merge
+   ========================== */
+
+
+body:has(.music-box) #page-header {
+
+    background-color:
+    rgba(10,20,40,0.15);
+
+}
+
+
+body:has(.music-box) .post-title {
+
+    text-shadow:
+
+    0 0 15px rgba(255,255,255,0.6);
+
+}
+
+/* ==========================
+   Global Glass Style
+   ========================== */
+
+
+.glass-card {
+
+    background:
+    rgba(255,255,255,0.12);
+
+
+    border:
+    1px solid rgba(255,255,255,0.25);
+
+
+    backdrop-filter:
+    blur(20px);
+
+
+    -webkit-backdrop-filter:
+    blur(20px);
+
+
+    box-shadow:
+
+    0 15px 40px rgba(0,0,0,0.25);
+
+
+    border-radius:
+    24px;
+
+}
+
+/* =========================
+   全站玻璃化（只在音乐盒页面生效）
+   -------------------------
+   这段原本没有任何作用域限制，又通过 inject.head 注入到每一页，
+   于是首页（白底）也套上了毛玻璃 + 白字，卡片和侧边栏的内容全部看不见。
+   下面统一用 body:has(.music-box) 限定，只在 /music/ 生效。
+   ========================= */
+
+
+/* 页面整体透明，露出 body 上的背景图 */
+
+body:has(.music-box) #page,
+body:has(.music-box) #content-inner {
+  background: transparent !important;
+}
+
+
+/* 文章卡片 / 侧栏卡片：毛玻璃 */
+
+body:has(.music-box) #recent-posts .recent-post-item,
+body:has(.music-box) .post-card,
+body:has(.music-box) #aside-content .card-widget {
+  background: rgba(255, 255, 255, 0.12) !important;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+}
+
+
+/* 卡片里的文字 / 标题改成白色，深色背景图上才看得清 */
+
+body:has(.music-box) #recent-posts .recent-post-item,
+body:has(.music-box) #recent-posts .recent-post-item a,
+body:has(.music-box) #aside-content,
+body:has(.music-box) .post-title,
+body:has(.music-box) .post-meta,
+body:has(.music-box) .post-content {
+  color: #fff;
+}
