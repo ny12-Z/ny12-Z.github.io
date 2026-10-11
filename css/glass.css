@@ -1,0 +1,382 @@
+/* ==========================================================================
+   glass.css
+   全站毛玻璃层 —— 参考 https://lvyovo-wiki.tech/（玻璃质感）
+                    和 https://www.fomal.cc/（卡片 + 悬浮音乐盒）
+   只做样式，不改主题模板；所有可调项都在 A 节。
+
+   加载顺序很重要：本文件在 _config.butterfly.yml 的 inject.head 里排在
+   APlayer.min.css / custom.css / fomal-style.css 之后，
+   所以同优先级的选择器都能覆盖主题，不需要 !important。
+
+   分八节：
+     A. 可调变量  B. 卡片  C. 导航  D. 页脚
+     E. 背景与可读性  F. 音乐页共存  G. 悬浮播放器皮肤  H. 小屏
+   ========================================================================== */
+
+
+/* ==========================================================================
+   A. 可调变量
+   --------------------------------------------------------------------------
+   想调玻璃的浓淡只改 --glass-bg 一个值。浅色下它是白色不透明度：
+   值越大卡片越白越实、文字越好读，但"玻璃感"越弱。
+   0.70 是正文色 (#4C4948) 在深色照片上仍能过 WCAG AA 的下限，别再往下调。
+   ========================================================================== */
+
+:root {
+  /* —— 卡片 —— */
+  --glass-bg: rgba(255, 255, 255, .70);      /* 卡片底色 */
+  --glass-border: rgba(255, 255, 255, .55);  /* 卡片描边，模拟玻璃反光 */
+  --glass-shadow: 0 8px 28px rgba(7, 17, 27, .12);
+  --glass-shadow-hover: 0 12px 36px rgba(7, 17, 27, .18);
+
+  /* —— 磨砂强度 —— */
+  --glass-blur: 14px;
+  --glass-sat: 160%;                          /* 饱和度补偿：模糊会让颜色发灰 */
+
+  /* —— 导航（只作用于滚动后的状态，首屏透明导航保持原样）—— */
+  --glass-nav: rgba(255, 255, 255, .72);
+
+  /* —— 页脚 ——
+     注意：本站 footer_img: false，主题的 mask.footer 是失效的（footer.styl 里
+     由 footer_img != false 把关），所以页脚没有自带遮罩。这里给它一层
+     偏深的蓝色玻璃，浅灰的页脚文字才压得住。改 --glass-footer 可调。 */
+  --glass-footer: rgba(26, 58, 86, .72);
+}
+
+/* 暗色模式：<html data-theme="dark"> —— 是属性不是 class，别写错。
+   暗色下主题已经在 #web_bg 上压了一层 rgba(0,0,0,.7) 的遮罩，
+   所以卡片反而可以更透一点。 */
+[data-theme="dark"] {
+  --glass-bg: rgba(18, 18, 18, .58);
+  --glass-border: rgba(255, 255, 255, .10);
+  --glass-shadow: 0 8px 28px rgba(0, 0, 0, .35);
+  --glass-shadow-hover: 0 12px 36px rgba(0, 0, 0, .45);
+  --glass-nav: rgba(18, 18, 18, .72);
+  --glass-footer: rgba(12, 18, 26, .68);
+}
+
+
+/* ==========================================================================
+   B. 卡片
+   --------------------------------------------------------------------------
+   主题里所有卡片都 @extend .cardHover（function.styl），背景取自
+   变量 --card-bg。这里【故意不覆盖 --card-bg】：它同时是归档时间轴圆点的
+   填充色（archives.styl），那些圆点必须不透明才能遮住竖线。
+   所以改为在每个具体选择器上写 background。
+
+   选择器与主题一一对应，靠加载顺序胜出：
+     #recent-posts .recent-post-item    → 首页文章卡片 (homepage.styl)
+     .layout > div:first-child:not(.nc) → 正文卡片 (common.styl)
+        各页面分别是 #post / #page / #archive / #category / #tag
+     #aside-content .card-widget        → 侧栏全部卡片，含 #card-toc
+     .layout .pagination > *:not(.space)→ 翻页按钮 (pagination.styl)
+   ========================================================================== */
+
+#recent-posts .recent-post-item,
+.layout > div:first-child:not(.nc),
+#aside-content .card-widget,
+.layout .pagination > *:not(.space),
+.type-404 .error-content,
+#article-container .shuoshuo-item {
+  background: var(--glass-bg);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+}
+
+/* 悬停时阴影加深，和主题原本的反馈一致 */
+#recent-posts .recent-post-item:hover,
+.layout .pagination > *:not(.space):hover {
+  box-shadow: var(--glass-shadow-hover);
+}
+
+/* 卡片里的次级底色（引用块、代码块、表格头）也统一成半透明的，
+   否则它们会是不透明的浅灰块，在半透明卡片上像补丁。 */
+:root {
+  --blockquote-bg: rgba(73, 177, 245, .12);
+}
+
+[data-theme="dark"] {
+  --blockquote-bg: rgba(73, 177, 245, .10);
+}
+
+
+/* ==========================================================================
+   C. 导航
+   --------------------------------------------------------------------------
+   首屏（full_page）的 #nav 是透明的，玻璃化反而更丑，所以不动它。
+   只改滚动之后的两种状态：
+     .not-top-img  没配顶部图时，页面滚动后
+     .nav-fixed    导航吸顶时（主题原本已有 blur(7px)，这里只调透明度）
+   暗色态必须把主题选择器【原样抄下来】—— 它是
+     [data-theme='dark'] #page-header.nav-fixed > #nav
+   优先级 (2,2,0)，比浅色的 (2,1,0) 高，不抄就压不住。
+   ========================================================================== */
+
+#page-header.not-top-img #nav,
+#page-header.nav-fixed #nav,
+[data-theme="dark"] #page-header.not-top-img > #nav,
+[data-theme="dark"] #page-header.nav-fixed > #nav {
+  background: var(--glass-nav);
+  -webkit-backdrop-filter: blur(12px) saturate(180%);
+  backdrop-filter: blur(12px) saturate(180%);
+}
+
+/* 下拉菜单也跟着玻璃化，否则是一块不透明的浅灰 */
+#page-header .menus_items .menus_item .menus_item_child {
+  background: var(--glass-nav);
+  -webkit-backdrop-filter: blur(12px) saturate(180%);
+  backdrop-filter: blur(12px) saturate(180%);
+  border: 1px solid var(--glass-border);
+}
+
+
+/* ==========================================================================
+   D. 页脚
+   --------------------------------------------------------------------------
+   主题给的是纯色 $light-blue (#49b1f5)（footer.styl）。
+   这里换成一整块深色玻璃。页脚文字色是 --light-grey (#EEEEEE)，压得住。
+   ========================================================================== */
+
+#footer {
+  background-color: var(--glass-footer);
+  -webkit-backdrop-filter: blur(12px) saturate(140%);
+  backdrop-filter: blur(12px) saturate(140%);
+}
+
+
+/* ==========================================================================
+   E. 背景与可读性
+   --------------------------------------------------------------------------
+   背景图走 _config.butterfly.yml 的 background: 配置，主题会把它渲染成
+   一个 position:fixed; z-index:-999 的 #web_bg，位于所有内容之下。
+   卡片的 backdrop-filter 采样的就是它。
+   ========================================================================== */
+
+/* —— 这里有个坑，不修会导致磨砂"延迟 1 秒才出现" ——
+   enter_transitions: true 会给 `#content-inner, #footer` 加
+   animation: bottom-top 1s（编译后在 index.css 里是同一条规则）。
+   这个动画是 translateY(35px) → translateY(0)，也就是 transform。
+
+   #content-inner 是【所有卡片的祖先】，祖先上的 transform 会新建
+   backdrop root，让卡片的 backdrop-filter 失效；动画 1 秒后才恢复。
+   更糟的是 pjax 每次切换页面都会重建 #body-wrap（含 #content-inner 和 #footer），
+   于是每次跳转都重放这个动画 —— 表现为"每次点链接磨砂都会消失 1 秒"。
+   #footer 本身就是一块玻璃，同理。
+
+   代价：失去内容和页脚整体上滑的入场动画（顶部标题的动画不受影响）。
+   想恢复就注释掉下面这条规则，接受磨砂延迟。 */
+#content-inner,
+#footer {
+  animation: none;
+}
+
+/* 浅色模式的轻微提亮层：压一下背景图里过亮/过花的区域，
+   提高正文可读性。它同时也在卡片的 backdrop 里，顺带让模糊更柔和。
+   暗色模式不加 —— 主题已经压了 rgba(0,0,0,.7)。 */
+html:not([data-theme="dark"]) #web_bg:after {
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, .10);
+  content: '';
+}
+
+/* Mac / iOS 兜底：
+   主题给 <html> 加了 .apple 类，并给首页卡片单独挂了 transform: translateZ(0)
+   （common.styl）。元素【自身】的 transform 通常不影响它自己的 backdrop-filter，
+   但 Safari 有已知毛病。如果你在 Mac / iPhone 上看到首页卡片不磨砂，
+   把下面两行取消注释即可（代价：丢掉它原本在修的 iOS 滚动闪烁）。 */
+/* .apple #recent-posts .recent-post-item { transform: none; } */
+
+
+/* ==========================================================================
+   F. 音乐页共存
+   --------------------------------------------------------------------------
+   /music/ 保留它原有的独立播放器（custom.css + music-box.js）。
+   这里让那页的玻璃悬浮播放器让位，避免页面上同时出现两个播放器。
+   用 CSS :has() 而不是 JS 判断路径 —— pjax 换掉 #body-wrap 后
+   :has() 会自动重算，不需要任何维护。
+   ========================================================================== */
+
+/* 该页自定义了整页背景图（music-bg.jpg，写在 custom.css 的 body 上）。
+   但 #web_bg 是定位元素、会盖在 body 背景之上，所以先把它藏起来，
+   否则全局背景图会把音乐页的背景顶掉。 */
+body:has(.music-box) #web_bg {
+  display: none;
+}
+
+body:has(.music-box) .aplayer.aplayer-fixed {
+  display: none !important;
+}
+
+
+/* ==========================================================================
+   G. 悬浮播放器皮肤
+   --------------------------------------------------------------------------
+   APlayer 1.10.1 的基础样式在 APlayer.min.css 里，本文件在它之后加载，
+   所以同优先级即可覆盖。
+
+   DOM 结构（皮肤改的是这些）：
+     .aplayer.aplayer-fixed         固定容器，max-width:400px 贴左下
+       .aplayer-body                主体条
+         .aplayer-pic               封面（66x66）
+         .aplayer-info              标题 / 作者 / 进度条 / 音量
+       .aplayer-list                播放列表
+       .aplayer-miniswitcher        右侧收起按钮
+   ========================================================================== */
+
+:root {
+  --player-bg: rgba(255, 255, 255, .68);
+  --player-border: rgba(255, 255, 255, .5);
+}
+
+[data-theme="dark"] {
+  --player-bg: rgba(24, 24, 26, .72);
+  --player-border: rgba(255, 255, 255, .12);
+}
+
+/* 主题在暗色下给 .aplayer 加了 filter: brightness(.8)。
+   filter 会新建 backdrop root，直接干掉播放器内部的 backdrop-filter，
+   所以这里必须清掉，暗色配色由上面的变量负责。 */
+[data-theme="dark"] .aplayer {
+  filter: none;
+}
+
+.aplayer.aplayer-fixed .aplayer-body {
+  background: var(--player-bg);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  backdrop-filter: blur(16px) saturate(180%);
+  box-shadow: 0 -6px 24px rgba(7, 17, 27, .16);
+  border-radius: 14px 14px 0 0;
+  overflow: hidden;
+}
+
+.aplayer.aplayer-fixed .aplayer-info {
+  border-top: 1px solid var(--player-border);
+}
+
+/* 收起按钮：默认是 #e6e6e6 的实心灰条 */
+.aplayer.aplayer-fixed .aplayer-miniswitcher {
+  background: transparent;
+  border-left: 1px solid var(--player-border);
+  border-radius: 0 14px 0 0;
+}
+
+.aplayer.aplayer-fixed .aplayer-miniswitcher .aplayer-icon path {
+  fill: var(--font-color);
+}
+
+/* 播放列表 */
+.aplayer.aplayer-fixed .aplayer-list {
+  background: var(--player-bg);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  backdrop-filter: blur(16px) saturate(180%);
+  border: 1px solid var(--player-border);
+  border-bottom: none;
+  border-radius: 14px 14px 0 0;
+}
+
+.aplayer.aplayer-fixed .aplayer-list ol li:hover {
+  background: rgba(73, 177, 245, .14);
+}
+
+.aplayer.aplayer-fixed .aplayer-list ol li.aplayer-list-light {
+  background: rgba(73, 177, 245, .20);
+}
+
+.aplayer.aplayer-fixed .aplayer-list-cur {
+  background-color: var(--btn-bg) !important;
+}
+
+/* 文字 */
+.aplayer.aplayer-fixed .aplayer-title {
+  color: var(--text-highlight-color);
+}
+
+.aplayer.aplayer-fixed .aplayer-author,
+.aplayer.aplayer-fixed .aplayer-time {
+  color: var(--card-meta);
+}
+
+/* 进度条：细圆角 + 主色，对齐参考站 */
+.aplayer.aplayer-fixed .aplayer-bar,
+.aplayer.aplayer-fixed .aplayer-loaded,
+.aplayer.aplayer-fixed .aplayer-played {
+  height: 4px;
+  border-radius: 999px;
+}
+
+.aplayer.aplayer-fixed .aplayer-bar {
+  background: rgba(127, 127, 127, .28);
+}
+
+.aplayer.aplayer-fixed .aplayer-loaded {
+  background: rgba(127, 127, 127, .45);
+}
+
+.aplayer.aplayer-fixed .aplayer-played {
+  background: var(--btn-bg);
+}
+
+.aplayer.aplayer-fixed .aplayer-thumb {
+  width: 11px;
+  height: 11px;
+  margin-top: -4px;
+  background: var(--btn-bg);
+  border: 2px solid #fff;
+  box-shadow: 0 0 0 1px rgba(73, 177, 245, .45);
+}
+
+/* 封面圆角 */
+.aplayer.aplayer-fixed .aplayer-pic {
+  border-radius: 12px;
+  margin: 6px;
+  height: 54px;
+  width: 54px;
+}
+
+/* 音量条 */
+.aplayer.aplayer-fixed .aplayer-volume-bar,
+.aplayer.aplayer-fixed .aplayer-volume {
+  border-radius: 999px;
+}
+
+.aplayer.aplayer-fixed .aplayer-volume {
+  background: var(--btn-bg);
+}
+
+/* 播放按钮保留 APlayer 默认的深色半透明底，别换成主色：
+   默认封面（music-note.svg）本身就是蓝色渐变，蓝底 + 蓝按钮会糊成一片；
+   深色半透明在渐变图标和真实专辑封面上都有对比度。 */
+.aplayer.aplayer-fixed .aplayer-pic .aplayer-button {
+  background: rgba(0, 0, 0, .30);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .25);
+}
+
+/* 若要挪到右下角：把下面两行的注释去掉（同时作用于收起态和展开态） */
+/* .aplayer.aplayer-fixed,
+   .aplayer.aplayer-fixed .aplayer-body { left: auto; right: 20px; } */
+
+
+/* ==========================================================================
+   H. 小屏
+   --------------------------------------------------------------------------
+   移动端降低模糊半径：blur 是 GPU 密集操作，小屏上大半径容易掉帧。
+   ========================================================================== */
+
+@media screen and (max-width: 768px) {
+  :root {
+    --glass-blur: 10px;
+    --glass-bg: rgba(255, 255, 255, .78);
+  }
+
+  [data-theme="dark"] {
+    --glass-bg: rgba(18, 18, 18, .66);
+  }
+
+  #aside-content .card-widget,
+  #recent-posts .recent-post-item {
+    box-shadow: 0 4px 16px rgba(7, 17, 27, .10);
+  }
+}
