@@ -3,13 +3,15 @@
    视觉改版层 —— 参考 https://www.fomal.cc/ 的整体风格
    只做样式，不改主题模板；所有内容都能在这里改，不需要动 themes/butterfly。
 
-   分六节：
+   分八节：
      A. 可调变量        —— 想换配色/字体只改这一节
      B. 字体与字号
      C. 首屏（大标题 / 打字机副标题 / 社交图标）
-     D. 卡片（圆角 / 阴影 / 悬停）
+     D. 卡片（fomal 的圆角阴影 + axi404 的细边框 / 悬停上浮 / 封面渐隐）
      E. 页脚（双栏 #ft）
      F. 可选：霞鹜文楷 webfont（默认关闭，见文末说明）
+     G. 移动端抽屉菜单
+     H. 滚动后的居中标题（配合 /js/nav-center.js）
    ========================================================================== */
 
 
@@ -129,25 +131,123 @@ h1#site-title {
 /* ==========================================================================
    D. 卡片
    --------------------------------------------------------------------------
-   主题自带的圆角/阴影已经和参考站一致（rounded_corners_ui: true）。
-   这里只把阴影改成更轻的「浮起来」观感，并统一悬停反馈。
+   fomal.cc 的卡片是「圆角 + 柔和阴影」，axi404.top 的卡片是
+   「1px 细边框 + 大圆角 + 悬停轻微上浮 + 封面朝文字一侧渐隐」。
+   这里把两者叠在一起：底色/阴影沿用主题（fomal），结构与交互走 axi404。
+
+   D1 基础圆角
+   D2 首页文章卡片
+   D3 封面渐隐（index_layout: 2 时封面对在右侧）
+   D4 标签胶囊
    ========================================================================== */
 
 :root {
   --card-box-shadow: 0 3px 12px rgba(7, 17, 27, .06);
-  --card-hover-box-shadow: 0 6px 20px rgba(7, 17, 27, .12);
+  --card-hover-box-shadow: 0 10px 28px rgba(7, 17, 27, .13);
+
+  /* —— axi404 风格 —— */
+  --card-radius: 16px;                        /* 首页文章卡片圆角 */
+  /* 常态描边由 glass.css 给（白色半透明，模拟玻璃棱边）；
+     悬停时这里把它染成主色 */
+  --card-border-hover: rgba(73, 177, 245, .55);
 }
 
+/* ---- D1 侧边栏 / 归档等卡片：保持主题的 10px 圆角，换更轻的阴影 ---- */
 #aside-content .card-widget,
 .layout > .recent-posts .pagination > :not(.space),
 .layout > div:first-child:not(.recent-posts) {
   border-radius: 10px;
 }
 
-/* 首页文章卡片的封面悬停缩放，和侧边栏一致 */
+/* ---- D2 首页文章卡片 ----
+   描边/底色/磨砂来自 glass.css（它排在最后），这里只管圆角、悬停和排版。 */
 #recent-posts .recent-post-item {
-  border-radius: 10px;
+  border-radius: var(--card-radius);
   overflow: hidden;
+  transition: transform .3s ease, box-shadow .3s ease, border-color .3s ease;
+}
+
+#recent-posts .recent-post-item:hover {
+  border-color: var(--card-border-hover);
+  transform: translateY(-4px);
+}
+
+/* 标题和摘要之间留一点气口，摘要行距放宽一点更好读 */
+#recent-posts .recent-post-item > .recent-post-info > .content {
+  margin-top: 10px;
+  line-height: 1.75;
+}
+
+/* ---- D3 封面渐隐 ----
+   index_layout: 2 会在封面上加 .right，封面对在右侧、文字在左。
+   用 mask 把封面靠文字的那条边擦淡，两张卡片拼在一起时不会有生硬的竖线。
+   没有封面的卡片（.no-cover）不受影响。 */
+#recent-posts .recent-post-item .post_cover.right {
+  width: 40%;
+  -webkit-mask-image: linear-gradient(to left, #000 42%, transparent 100%);
+  mask-image: linear-gradient(to left, #000 42%, transparent 100%);
+}
+
+@media screen and (max-width: 768px) {
+  /* 窄屏封面上移到卡片顶部，改成向下渐隐 */
+  #recent-posts .recent-post-item .post_cover.right {
+    width: 100%;
+    -webkit-mask-image: linear-gradient(to bottom, #000 50%, transparent 100%);
+    mask-image: linear-gradient(to bottom, #000 50%, transparent 100%);
+  }
+}
+
+/* ---- D4 标签胶囊 ----
+   主题默认是「图标 + 文字 + •」，这里改成一个个小胶囊。
+   没有给文章配 tags 时这段不生效，不影响其它页面。 */
+#recent-posts .recent-post-item .article-meta-wrap .tags .article-meta__tags {
+  display: inline-block;
+  padding: 0 9px;
+  border: 1px solid rgba(73, 177, 245, .38);
+  border-radius: 999px;
+  background: rgba(73, 177, 245, .10);
+  color: var(--btn-bg);
+  font-size: .92em;
+  line-height: 1.9;
+  transition: all .25s ease;
+}
+
+#recent-posts .recent-post-item .article-meta-wrap .tags .article-meta__tags:hover {
+  border-color: var(--btn-bg);
+  background: var(--btn-bg);
+  color: #fff;
+  text-decoration: none;
+}
+
+#recent-posts .recent-post-item .article-meta-wrap .tags .article-meta__tags + .article-meta__tags {
+  margin-left: 6px;
+}
+
+/* 胶囊里不需要小标签图标和「•」分隔符 */
+#recent-posts .recent-post-item .article-meta-wrap .tags i.fas.fa-tag,
+#recent-posts .recent-post-item .article-meta-wrap .tags .article-meta-link {
+  display: none;
+}
+
+/* 文章页底部的标签用同一种胶囊，两边看着是一套 */
+.post-meta__tag-list .post-meta__tags {
+  display: inline-block;
+  margin: 0 6px 6px 0;
+  padding: 1px 10px;
+  border: 1px solid rgba(73, 177, 245, .38);
+  border-radius: 999px;
+  background: rgba(73, 177, 245, .10);
+  color: var(--btn-bg);
+  font-size: .92em;
+  line-height: 1.9;
+  transition: all .25s ease;
+}
+
+.post-meta__tag-list .post-meta__tags:hover {
+  border-color: var(--btn-bg);
+  background: var(--btn-bg);
+  color: #fff;
+  text-decoration: none;
 }
 
 
@@ -324,3 +424,113 @@ h1#site-title {
    @import url('https://cdn.jsdelivr.net/npm/lxgw-wenkai-screen-webfont@1.7.0/style.css');
    #site-title, #site-subtitle, #article-container h1, #article-container h2 { font-family: 'LXGW WenKai Screen', inherit; }
    ========================================================================== */
+
+
+/* ==========================================================================
+   G. 移动端抽屉菜单
+   --------------------------------------------------------------------------
+   抽屉只在 _config.butterfly.yml 的 menu 非空时才渲染（模板里的 if theme.menu），
+   所以桌面端看不到菜单 = 移动端也没抽屉。menu 已经填上了，这里只调外观。
+   ========================================================================== */
+
+#sidebar-menus {
+  box-shadow: -6px 0 24px rgba(7, 17, 27, .12);
+}
+
+#sidebar-menus .avatar-img img {
+  border-radius: 50%;
+  border: 3px solid rgba(255, 255, 255, .85);
+  box-shadow: 0 6px 18px rgba(7, 17, 27, .15);
+}
+
+/* 头像下面那排「文章 / 标签 / 分类」改成等分三列 */
+#sidebar-menus .site-data {
+  display: flex;
+  justify-content: center;
+  padding: 0 16px 8px;
+}
+
+#sidebar-menus .site-data a {
+  flex: 1;
+  color: var(--font-color);
+  text-align: center;
+}
+
+#sidebar-menus .site-data .headline {
+  font-size: .85em;
+  color: var(--card-meta);
+}
+
+#sidebar-menus .site-data .length-num {
+  margin-top: 4px;
+  font-size: 1.3em;
+  font-weight: 600;
+}
+
+#sidebar-menus .menus_items {
+  border-radius: 14px;
+}
+
+#sidebar-menus .menus_items .site-page {
+  border-radius: 10px;
+}
+
+
+/* ==========================================================================
+   H. 滚动后的居中标题
+   --------------------------------------------------------------------------
+   复刻 fomal.cc 的导航效果：滚过首屏之后，左上角站名淡出、
+   导航正中淡入当前页面标题。DOM 由 /js/nav-center.js 动态生成，
+   不用改主题模板（nav.pug 里本来没有这个元素）。
+   ========================================================================== */
+
+#name-container {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 46%;
+  color: var(--font-color);
+  font-size: .92em;
+  font-weight: 600;
+  white-space: nowrap;
+  opacity: 0;
+  transform: translate(-50%, -50%) translateY(8px);
+  transition: opacity .35s ease, transform .35s ease;
+  pointer-events: none;
+}
+
+#name-container i {
+  color: var(--btn-bg);
+}
+
+#name-container #page-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* nav-center.js 会切这个 class */
+#nav.name-show #name-container {
+  opacity: 1;
+  transform: translate(-50%, -50%);
+  pointer-events: auto;
+}
+
+/* 站名同时淡出，视觉上就是「名字从左边飘到了中间」 */
+#nav.name-show #blog-info {
+  opacity: 0;
+  transition: opacity .35s ease;
+}
+
+#blog-info {
+  transition: opacity .35s ease;
+}
+
+/* 窄屏没有空间放居中标题，直接不显示 */
+@media screen and (max-width: 768px) {
+  #name-container {
+    display: none;
+  }
+}
