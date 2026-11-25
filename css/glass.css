@@ -197,7 +197,7 @@ html:not([data-theme="dark"]) #web_bg:after {
    一起绘制），再用 mask-image 让它在底部渐隐成透明，露出下面的背景图，
    形成交叉淡入。导航 / 标题 / 滚动箭头是头部的普通子元素，不参与遮罩。
 
-   注意：图片写死为 piano-summer.jpg，与 _config.butterfly.yml 里的
+   注意：图片写死为 music-bg.jpg，与 _config.butterfly.yml 里的
    index_img / default_top_img 保持一致；以后换顶部图时要同步改这里。 */
 #page-header:not(.not-top-img) {
   background-color: transparent !important;  /* 渐隐区要能透出下面的背景图 */
@@ -207,7 +207,7 @@ html:not([data-theme="dark"]) #web_bg:after {
 #page-header:not(.not-top-img)::before {
   background-image:
     linear-gradient(var(--mark-bg), var(--mark-bg)),
-    url('/img/piano-summer.jpg');
+    url('/img/music-bg.jpg');
   background-position: center center;
   background-size: cover;
   background-repeat: no-repeat;
