@@ -190,6 +190,63 @@ html:not([data-theme="dark"]) #web_bg:after {
 /* .apple #recent-posts .recent-post-item { transform: none; } */
 
 
+/* —— 头部横幅与页面背景的衔接 ——
+   首页/内页的顶部横幅（index_img / default_top_img）和正文背景
+   （#web_bg 或音乐页的 body 背景）是两张不同的图，横幅底边原本是硬切。
+   做法：把横幅图从 #page-header 移到 ::before（连同主题遮罩色 --mark-bg
+   一起绘制），再用 mask-image 让它在底部渐隐成透明，露出下面的背景图，
+   形成交叉淡入。导航 / 标题 / 滚动箭头是头部的普通子元素，不参与遮罩。
+
+   注意：图片写死为 piano-summer.jpg，与 _config.butterfly.yml 里的
+   index_img / default_top_img 保持一致；以后换顶部图时要同步改这里。 */
+#page-header:not(.not-top-img) {
+  background-color: transparent !important;  /* 渐隐区要能透出下面的背景图 */
+  background-image: none !important;         /* 图片改由 ::before 绘制 */
+}
+
+#page-header:not(.not-top-img)::before {
+  background-image:
+    linear-gradient(var(--mark-bg), var(--mark-bg)),
+    url('/img/piano-summer.jpg');
+  background-position: center center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 100px), transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 calc(100% - 100px), transparent 100%);
+}
+
+/* 首页是整屏横幅，渐隐距离拉长一些；18vh 保证矮窗口下也不会吃掉太多画面 */
+#page-header.full_page::before {
+  background-attachment: fixed;  /* 补回主题原本的 background-attachment: fixed */
+  -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - clamp(120px, 18vh, 220px)), transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 calc(100% - clamp(120px, 18vh, 220px)), transparent 100%);
+}
+
+/* 渐隐区里的滚动箭头会落到浅色背景图上，加深阴影保持可见 */
+#page-header #scroll-down .scroll-down-effects {
+  text-shadow: 0 2px 10px rgba(7, 17, 27, .55), 0 0 3px rgba(7, 17, 27, .35);
+}
+
+/* 文章页横幅的标题在底边，正好落在渐隐区，补阴影保证可读 */
+#page-header #post-info .post-title,
+#page-header #post-info #post-meta,
+#page-header #post-info #post-meta a {
+  text-shadow: 0 1px 8px rgba(7, 17, 27, .55), 0 0 2px rgba(7, 17, 27, .35);
+}
+
+@media screen and (max-width: 768px) {
+  #page-header:not(.not-top-img)::before {
+    -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 80px), transparent 100%);
+    mask-image: linear-gradient(to bottom, #000 calc(100% - 80px), transparent 100%);
+  }
+
+  #page-header.full_page::before {
+    -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 120px), transparent 100%);
+    mask-image: linear-gradient(to bottom, #000 calc(100% - 120px), transparent 100%);
+  }
+}
+
+
 /* ==========================================================================
    F. 音乐页共存
    --------------------------------------------------------------------------
