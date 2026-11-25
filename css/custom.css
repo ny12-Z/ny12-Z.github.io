@@ -1,4 +1,16 @@
 /* =========================
+   个人简介卡（原“公告”卡）
+   ========================= */
+
+/* 主题给公告图标写死了 #f00，选择器是
+   #aside-content .card-announcement .item-headline i，
+   这里带上同样的前缀才能覆盖；简介卡改用主题蓝。 */
+#aside-content .card-announcement .item-headline i {
+  color: var(--btn-bg, #49b1f5);
+}
+
+
+/* =========================
    Music Box
    ========================= */
 
