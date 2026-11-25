@@ -192,12 +192,14 @@ html:not([data-theme="dark"]) #web_bg:after {
 
 /* —— 头部横幅与页面背景的衔接 ——
    首页/内页的顶部横幅（index_img / default_top_img）和正文背景
-   （#web_bg 或音乐页的 body 背景）是两张不同的图，横幅底边原本是硬切。
+   （#web_bg 或音乐页的 body 背景）用的是同一张图，横幅底边原本是硬切。
    做法：把横幅图从 #page-header 移到 ::before（连同主题遮罩色 --mark-bg
    一起绘制），再用 mask-image 让它在底部渐隐成透明，露出下面的背景图，
    形成交叉淡入。导航 / 标题 / 滚动箭头是头部的普通子元素，不参与遮罩。
 
-   注意：图片写死为 music-bg.jpg，与 _config.butterfly.yml 里的
+   图片是竖图（1440×2560），宽屏下 cover 会裁掉上下。这里把焦点放在
+   人物上半身（35%），否则默认居中只剩腿脚。
+   注意：图片写死为 music-bg.webp，与 _config.butterfly.yml 里的
    index_img / default_top_img 保持一致；以后换顶部图时要同步改这里。 */
 #page-header:not(.not-top-img) {
   background-color: transparent !important;  /* 渐隐区要能透出下面的背景图 */
@@ -207,17 +209,24 @@ html:not([data-theme="dark"]) #web_bg:after {
 #page-header:not(.not-top-img)::before {
   background-image:
     linear-gradient(var(--mark-bg), var(--mark-bg)),
-    url('/img/music-bg.jpg');
-  background-position: center center;
+    url('/img/music-bg.webp');
+  background-position: center 30%;
   background-size: cover;
   background-repeat: no-repeat;
   -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 100px), transparent 100%);
   mask-image: linear-gradient(to bottom, #000 calc(100% - 100px), transparent 100%);
 }
 
-/* 首页是整屏横幅，渐隐距离拉长一些；18vh 保证矮窗口下也不会吃掉太多画面 */
+/* 全站背景（含首页）也上移焦点；要和首页横幅用同一百分比才能无缝 */
+#web_bg {
+  background-position: center 35% !important;
+}
+
+/* 首页是整屏横幅：焦点与 #web_bg 对齐，渐隐距离拉长一些；
+   18vh 保证矮窗口下也不会吃掉太多画面 */
 #page-header.full_page::before {
   background-attachment: fixed;  /* 补回主题原本的 background-attachment: fixed */
+  background-position: center 35%;
   -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - clamp(120px, 18vh, 220px)), transparent 100%);
   mask-image: linear-gradient(to bottom, #000 calc(100% - clamp(120px, 18vh, 220px)), transparent 100%);
 }
@@ -235,9 +244,17 @@ html:not([data-theme="dark"]) #web_bg:after {
 }
 
 @media screen and (max-width: 768px) {
+  /* 手机换成 900×1600 的小图（126KB），竖屏下整张图刚好铺满 */
   #page-header:not(.not-top-img)::before {
+    background-image:
+      linear-gradient(var(--mark-bg), var(--mark-bg)),
+      url('/img/music-bg-mobile.webp');
     -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 80px), transparent 100%);
     mask-image: linear-gradient(to bottom, #000 calc(100% - 80px), transparent 100%);
+  }
+
+  #web_bg {
+    background-image: url('/img/music-bg-mobile.webp') !important;
   }
 
   #page-header.full_page::before {
@@ -256,7 +273,7 @@ html:not([data-theme="dark"]) #web_bg:after {
    :has() 会自动重算，不需要任何维护。
    ========================================================================== */
 
-/* 该页自定义了整页背景图（music-bg.jpg，写在 custom.css 的 body 上）。
+/* 该页自定义了整页背景图（music-bg.webp，写在 custom.css 的 body 上）。
    但 #web_bg 是定位元素、会盖在 body 背景之上，所以先把它藏起来，
    否则全局背景图会把音乐页的背景顶掉。 */
 body:has(.music-box) #web_bg {

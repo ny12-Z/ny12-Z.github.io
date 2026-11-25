@@ -8,11 +8,23 @@ body:has(.music-box) {
       rgba(10, 20, 40, 0.35),
       rgba(10, 20, 40, 0.45)
     ),
-    url("/img/music-bg.jpg");
+    url("/img/music-bg.webp");
 
   background-size: cover;
-  background-position: center;
+  background-position: center 35%;
   background-attachment: fixed;
+}
+
+/* 手机用 900×1600 的小图，和全站背景/横幅保持一致 */
+@media screen and (max-width: 768px) {
+  body:has(.music-box) {
+    background-image:
+      linear-gradient(
+        rgba(10, 20, 40, 0.35),
+        rgba(10, 20, 40, 0.45)
+      ),
+      url("/img/music-bg-mobile.webp");
+  }
 }
 
 body:has(.music-box) #page {
